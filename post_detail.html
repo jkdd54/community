@@ -154,7 +154,7 @@
                                                    <span class="delete-comment text-red-500 cursor-pointer" data-id="${commentDoc.id}" data-level="${level}">delete</span>`
                                                 : '<span class="text-gray-500">You do not have permission to edit or delete this comment.</span>'
                                             }
-                                            <span class="reply-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}" data-nickname="${comment.nickname}" data-level="${level}">reply</span>
+                                            ${level < 1 ? `<span class="reply-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}" data-nickname="${comment.nickname}" data-level="${level}">reply</span>` : ''}
                                         </div>
                                     </div>
                                 `;
@@ -272,6 +272,7 @@
                                 }
                                 const commentId = e.target.dataset.id;
                                 const parentNickname = e.target.dataset.nickname;
+                                const level = parseInt(e.target.dataset.level) + 1;
                                 const commentRef = collection(db, "posts", postId, "comments", commentId, "replies");
                                 const replyInput = document.createElement('textarea');
                                 const replyNickname = document.createElement('input');
