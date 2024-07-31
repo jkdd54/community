@@ -6,7 +6,6 @@
     <title>Community Site</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.1/dist/index.umd.min.js"></script>
     <style>
         body {
             font-family: 'Press Start 2P', cursive;
@@ -88,26 +87,32 @@
         });
 
         window.onload = () => {
-            const widgetConfig = {
-                app_id: 'app_82a1bab466c1d1ae219e5049512aef97',
-                action: 'koreandev',
-                signal: 'login',
-                onSuccess: (proof) => {
-                    console.log('Authenticated:', proof);
-                    localStorage.setItem('worldID', JSON.stringify(proof));
-                    window.location.reload();
-                },
-                onError: (error) => {
-                    console.error('Authentication failed:', error);
-                }
-            };
+            import('https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js')
+                .then(({ IDKitWidget }) => {
+                    const widgetConfig = {
+                        app_id: 'app_82a1bab466c1d1ae219e5049512aef97',
+                        action: 'koreandev',
+                        signal: 'login',
+                        onSuccess: (proof) => {
+                            console.log('Authenticated:', proof);
+                            localStorage.setItem('worldID', JSON.stringify(proof));
+                            window.location.reload();
+                        },
+                        onError: (error) => {
+                            console.error('Authentication failed:', error);
+                        }
+                    };
 
-            const worldIDWidget = new IDKitWidget(widgetConfig);
+                    const worldIDWidget = new IDKitWidget(widgetConfig);
 
-            document.getElementById('login-button').addEventListener('click', () => {
-                console.log("Login button clicked");
-                worldIDWidget.open();
-            });
+                    document.getElementById('login-button').addEventListener('click', () => {
+                        console.log("Login button clicked");
+                        worldIDWidget.open();
+                    });
+                })
+                .catch((error) => {
+                    console.error('Error loading IDKitWidget:', error);
+                });
         }
     </script>
 </body>
