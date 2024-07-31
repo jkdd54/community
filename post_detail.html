@@ -15,6 +15,9 @@
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
         }
+        .reply {
+            margin-left: 1rem;
+        }
     </style>
     <script type="module">
         // Firebase 모듈 로드
@@ -105,27 +108,35 @@
                         });
 
                         // 댓글 로드
+                        const loadComments = async (commentsRef, parentElement, level = 0) => {
+                            const commentsQuery = query(commentsRef, orderBy("timestamp", "asc"));
+                            const commentsSnapshot = await getDocs(commentsQuery);
+                            commentsSnapshot.forEach((commentDoc) => {
+                                const comment = commentDoc.data();
+                                const commentDate = new Date(comment.timestamp.toDate()).toLocaleString();
+                                const commentElement = document.createElement('div');
+                                commentElement.className = `p-2 mt-2 ${level === 1 ? 'reply' : ''}`;
+                                commentElement.innerHTML = `
+                                    <p class="comment-content">${comment.content}</p>
+                                    <small>${commentDate}</small>
+                                    <div class="text-sm">
+                                        ${comment.uid === user.uid 
+                                            ? `<span class="edit-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}">edit</span> 
+                                               <span class="delete-comment text-red-500 cursor-pointer" data-id="${commentDoc.id}">delete</span>`
+                                            : '<span class="text-gray-500">You do not have permission to edit or delete this comment.</span>'
+                                        }
+                                        <span class="reply-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}">reply</span>
+                                    </div>
+                                `;
+                                parentElement.appendChild(commentElement);
+
+                                const repliesRef = collection(commentsRef, commentDoc.id, "replies");
+                                loadComments(repliesRef, commentElement, level + 1);
+                            });
+                        };
+
                         const commentsRef = collection(db, "posts", postId, "comments");
-                        const commentsQuery = query(commentsRef, orderBy("timestamp", "asc"));
-                        const commentsSnapshot = await getDocs(commentsQuery);
-                        commentsSnapshot.forEach((commentDoc) => {
-                            const comment = commentDoc.data();
-                            const commentDate = new Date(comment.timestamp.toDate()).toLocaleString();
-                            const commentElement = document.createElement('div');
-                            commentElement.className = 'p-2 mt-2';
-                            commentElement.innerHTML = `
-                                <p class="comment-content">${comment.content}</p>
-                                <small>${commentDate}</small>
-                                <div class="text-sm">
-                                    ${comment.uid === user.uid 
-                                        ? `<span class="edit-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}">edit</span> 
-                                           <span class="delete-comment text-red-500 cursor-pointer" data-id="${commentDoc.id}">delete</span>`
-                                        : '<span class="text-gray-500">You do not have permission to edit or delete this comment.</span>'
-                                    }
-                                </div>
-                            `;
-                            commentList.appendChild(commentElement);
-                        });
+                        await loadComments(commentsRef, commentList);
 
                         // 댓글 추가
                         commentForm.addEventListener('submit', async function (e) {
@@ -147,6 +158,7 @@
                                     <div class="text-sm">
                                         <span class="edit-comment text-blue-500 cursor-pointer" data-id="${newComment.id}">edit</span> 
                                         <span class="delete-comment text-red-500 cursor-pointer" data-id="${newComment.id}">delete</span>
+                                        <span class="reply-comment text-blue-500 cursor-pointer" data-id="${newComment.id}">reply</span>
                                     </div>
                                 `;
                                 commentList.appendChild(newCommentElement);
@@ -155,7 +167,7 @@
                             }
                         });
 
-                        // 댓글 수정 및 삭제
+                        // 댓글 수정, 삭제 및 대댓글 작성
                         commentList.addEventListener('click', async function (e) {
                             if (e.target.classList.contains('edit-comment')) {
                                 const commentId = e.target.dataset.id;
@@ -205,6 +217,44 @@
                                         alert("You do not have permission to delete this comment.");
                                     }
                                 }
+                            } else if (e.target.classList.contains('reply-comment')) {
+                                const commentId = e.target.dataset.id;
+                                const commentRef = collection(db, "posts", postId, "comments", commentId, "replies");
+                                const replyInput = document.createElement('textarea');
+                                replyInput.classList.add('w-full', 'border-gray-300', 'rounded-md', 'shadow-sm', 'mb-2', 'mt-2');
+                                replyInput.setAttribute('rows', '2');
+                                replyInput.setAttribute('placeholder', 'Write a reply...');
+                                const replyButton = document.createElement('button');
+                                replyButton.textContent = 'Reply';
+                                replyButton.classList.add('bg-blue-600', 'text-white', 'px-2', 'py-1', 'rounded-md', 'mt-2');
+                                e.target.parentElement.parentElement.appendChild(replyInput);
+                                e.target.parentElement.parentElement.appendChild(replyButton);
+                                replyButton.addEventListener('click', async function () {
+                                    const replyContent = replyInput.value;
+                                    try {
+                                        const newReply = await addDoc(commentRef, {
+                                            content: replyContent,
+                                            uid: user.uid,
+                                            timestamp: new Date()
+                                        });
+                                        const newReplyDate = new Date().toLocaleString();
+                                        const newReplyElement = document.createElement('div');
+                                        newReplyElement.className = 'p-2 mt-2 reply';
+                                        newReplyElement.innerHTML = `
+                                            <p class="comment-content">${replyContent}</p>
+                                            <small>${newReplyDate}</small>
+                                            <div class="text-sm">
+                                                <span class="edit-comment text-blue-500 cursor-pointer" data-id="${newReply.id}">edit</span> 
+                                                <span class="delete-comment text-red-500 cursor-pointer" data-id="${newReply.id}">delete</span>
+                                            </div>
+                                        `;
+                                        e.target.parentElement.parentElement.appendChild(newReplyElement);
+                                        replyInput.remove();
+                                        replyButton.remove();
+                                    } catch (error) {
+                                        console.error("Error adding reply: ", error);
+                                    }
+                                });
                             }
                         });
                     } else {
