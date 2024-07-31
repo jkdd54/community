@@ -73,6 +73,10 @@
                         postContent.textContent = post.content;
                         postDate.textContent = new Date(post.timestamp.toDate()).toLocaleString();
 
+                        if (post.lastEdited) {
+                            postDate.textContent += ` (수정됨, ${new Date(post.lastEdited.toDate()).toLocaleString()})`;
+                        }
+
                         if (post.uid === user.uid) {
                             editButton.style.display = 'block';
                             deleteButton.style.display = 'block';
@@ -94,7 +98,8 @@
                             try {
                                 await updateDoc(docRef, {
                                     title: newTitle,
-                                    content: newContent
+                                    content: newContent,
+                                    lastEdited: new Date()
                                 });
                                 console.log('Document successfully updated!');
                                 window.location.href = 'index.html';
@@ -128,7 +133,7 @@
                                 commentElement.className = `p-2 mt-2 ${level === 1 ? 'reply' : ''}`;
                                 commentElement.innerHTML = `
                                     <p class="comment-content">${comment.content}</p>
-                                    <small>${comment.nickname} - ${commentDate}</small>
+                                    <small>${comment.nickname} - ${commentDate}${comment.lastEdited ? ` (수정됨, ${new Date(comment.lastEdited.toDate()).toLocaleString()})` : ''}</small>
                                     <div class="text-sm">
                                         ${comment.uid === user.uid 
                                             ? `<span class="edit-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}">edit</span> 
@@ -206,7 +211,7 @@
                                         saveButton.addEventListener('click', async function () {
                                             const newContent = commentContentElement.textContent;
                                             try {
-                                                await updateDoc(commentRef, { content: newContent });
+                                                await updateDoc(commentRef, { content: newContent, lastEdited: new Date() });
                                                 commentContentElement.contentEditable = false;
                                                 commentContentElement.classList.remove('bg-white', 'p-2', 'rounded', 'shadow-sm');
                                                 e.target.style.display = 'inline';
@@ -284,7 +289,7 @@
                                                 <span class="delete-comment text-red-500 cursor-pointer" data-id="${newReply.id}">delete</span>
                                             </div>
                                         `;
-                                        e.target.parentElement.parentElement.appendChild(newReplyElement);
+                                        replyContainer.parentElement.appendChild(newReplyElement);
                                         replyContainer.remove();
                                         currentReplyContainer = null;
                                     } catch (error) {
