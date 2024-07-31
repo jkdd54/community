@@ -1,6 +1,6 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+import { initializeApp } from "./node_modules/firebase/app";
+import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, doc, getDoc } from "./node_modules/firebase/firestore";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "./node_modules/firebase/auth";
 
 // Firebase 구성 정보
 const firebaseConfig = {
