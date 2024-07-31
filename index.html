@@ -30,15 +30,9 @@
             white-space: pre-wrap;
             overflow: hidden;
             border-right: 0.15em solid orange;
-            animation: typing 6.5s steps(60, end), blink-caret 0.75s step-end infinite;
             margin-top: 20px;
             width: 80%;
             max-width: 600px;
-        }
-
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
         }
 
         @keyframes blink-caret {
@@ -66,13 +60,13 @@
     </nav>
     <div class="container-center">
         <img src="logo.svg" alt="Logo" class="logo mx-auto">
-        <div class="typing text-gray-700">
+        <div class="typing text-gray-700" id="typing-text">
             세계 최대 규모의 커뮤니티를 목표로 한 월드 커뮤니티는 영지식 증명을 통해 사용자의 개인 정보를 수집하거나 저장하지 않으면서도 익명성을 보장하는 월드 ID를 사용하여 접근할 수 있습니다.
         </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const textElement = document.querySelector('.typing');
+            const textElement = document.getElementById('typing-text');
             const text = textElement.textContent;
             textElement.textContent = '';
 
@@ -83,6 +77,8 @@
                     textElement.textContent += text.charAt(index);
                     index++;
                     setTimeout(type, 50);
+                } else {
+                    textElement.style.borderRight = 'none'; // Remove the blinking cursor after typing
                 }
             }
 
