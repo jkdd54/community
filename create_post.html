@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Post</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
+    <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyDGKmefqcWtIPXYqZBzpBETw_IdEfp1bJQ",
+        authDomain: "worldcommunity-ed8b9.firebaseapp.com",
+        projectId: "worldcommunity-ed8b9",
+        storageBucket: "worldcommunity-ed8b9.appspot.com",
+        messagingSenderId: "261985250862",
+        appId: "1:261985250862:web:2b06b9fd30be2eb0d0b9bf"
+      };
+      firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      var auth = firebase.auth();
+      auth.signInAnonymously().catch(function(error) {
+        console.error("Error signing in anonymously: ", error);
+      });
+    </script>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-blue-600 p-4 text-white">
@@ -30,6 +49,6 @@
             </div>
         </form>
     </main>
-    <script src="main.js"></script>
+    <script src="../js/main.js"></script>
 </body>
 </html>
