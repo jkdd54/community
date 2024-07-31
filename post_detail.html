@@ -31,6 +31,7 @@
             const postTitle = document.getElementById('post-title');
             const postContent = document.getElementById('post-content');
             const editButton = document.getElementById('edit-button');
+            const saveButton = document.getElementById('save-button');
             const deleteButton = document.getElementById('delete-button');
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('id');
@@ -51,7 +52,13 @@
                             deleteButton.style.display = 'block';
                         }
 
-                        editButton.addEventListener('click', async function () {
+                        editButton.addEventListener('click', function () {
+                            postTitle.readOnly = false;
+                            postContent.readOnly = false;
+                            saveButton.style.display = 'block';
+                        });
+
+                        saveButton.addEventListener('click', async function () {
                             const newTitle = postTitle.value;
                             const newContent = postContent.value;
                             try {
@@ -96,6 +103,7 @@
         <input id="post-title" class="text-xl font-bold mb-4 block w-full border-gray-300 rounded-md shadow-sm" readonly />
         <textarea id="post-content" class="text-gray-700 block w-full border-gray-300 rounded-md shadow-sm" rows="10" readonly></textarea>
         <button id="edit-button" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Edit</button>
+        <button id="save-button" class="bg-green-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Save</button>
         <button id="delete-button" class="bg-red-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Delete</button>
     </main>
 </body>
