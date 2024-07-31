@@ -6,7 +6,29 @@
     <title>Community Site</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.js"></script>
+    <script type="module">
+        import { IDKitWidget, VerificationLevel } from 'https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginButton = document.getElementById('login-button');
+            loginButton.addEventListener('click', () => {
+                const worldIDWidget = new IDKitWidget({
+                    app_id: "app_82a1bab466c1d1ae219e5049512aef97",
+                    action: "koreandev",
+                    signal: "login", // this could be dynamic based on user data
+                    onSuccess: (proof) => {
+                        console.log('Authenticated:', proof);
+                        localStorage.setItem('worldID', JSON.stringify(proof));
+                        window.location.reload();
+                    },
+                    onError: (error) => {
+                        console.error('Authentication failed:', error);
+                    }
+                });
+                worldIDWidget.open();
+            });
+        });
+    </script>
     <style>
         body {
             font-family: 'Press Start 2P', cursive;
@@ -85,25 +107,6 @@
             }
 
             type();
-        });
-
-        const worldID = new WorldID({
-            clientID: 'app_82a1bab466c1d1ae219e5049512aef97',
-            action: 'koreandev',
-            signal: 'login',
-            onSuccess: (proof) => {
-                console.log('Authenticated:', proof);
-                localStorage.setItem('worldID', JSON.stringify(proof));
-                window.location.reload();
-            },
-            onError: (error) => {
-                console.error('Authentication failed:', error);
-            }
-        });
-
-        document.getElementById('login-button').addEventListener('click', () => {
-            console.log("Login button clicked");
-            worldID.open();
         });
     </script>
 </body>
