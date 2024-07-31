@@ -51,8 +51,8 @@
                     if (docSnap.exists()) {
                         const post = docSnap.data();
                         console.log('Post detail:', post);
-                        postTitle.value = post.title;
-                        postContent.value = post.content;
+                        postTitle.textContent = post.title;
+                        postContent.textContent = post.content;
 
                         if (post.uid === user.uid) {
                             editButton.style.display = 'block';
@@ -60,15 +60,17 @@
                         }
 
                         editButton.addEventListener('click', function () {
-                            postTitle.readOnly = false;
-                            postContent.readOnly = false;
+                            postTitle.contentEditable = true;
+                            postContent.contentEditable = true;
+                            postTitle.classList.add('bg-white', 'p-2', 'rounded', 'shadow-sm');
+                            postContent.classList.add('bg-white', 'p-2', 'rounded', 'shadow-sm');
                             saveButton.style.display = 'block';
                             editButton.style.display = 'none';
                         });
 
                         saveButton.addEventListener('click', async function () {
-                            const newTitle = postTitle.value;
-                            const newContent = postContent.value;
+                            const newTitle = postTitle.textContent;
+                            const newContent = postContent.textContent;
                             try {
                                 await updateDoc(docRef, {
                                     title: newTitle,
@@ -99,9 +101,9 @@
                             const comment = commentDoc.data();
                             const commentDate = new Date(comment.timestamp.toDate()).toLocaleString();
                             const commentElement = document.createElement('div');
-                            commentElement.className = 'bg-gray-100 p-2 rounded mt-2';
+                            commentElement.className = 'p-2 mt-2';
                             commentElement.innerHTML = `
-                                <p>${comment.content}</p>
+                                <p class="comment-content">${comment.content}</p>
                                 <small>${commentDate}</small>
                                 <div class="text-sm">
                                     ${comment.uid === user.uid 
@@ -127,9 +129,9 @@
                                 commentInput.value = '';
                                 const newCommentDate = new Date().toLocaleString();
                                 const newCommentElement = document.createElement('div');
-                                newCommentElement.className = 'bg-gray-100 p-2 rounded mt-2';
+                                newCommentElement.className = 'p-2 mt-2';
                                 newCommentElement.innerHTML = `
-                                    <p>${commentContent}</p>
+                                    <p class="comment-content">${commentContent}</p>
                                     <small>${newCommentDate}</small>
                                     <div class="text-sm">
                                         <span class="edit-comment text-blue-500 cursor-pointer" data-id="${newComment.id}">edit</span> 
@@ -150,15 +152,26 @@
                                 const commentDoc = await getDoc(commentRef);
                                 if (commentDoc.exists()) {
                                     if (commentDoc.data().uid === user.uid) {
-                                        const newContent = prompt("Edit your comment:", commentDoc.data().content);
-                                        if (newContent !== null) {
+                                        const commentContentElement = e.target.parentElement.parentElement.querySelector('.comment-content');
+                                        commentContentElement.contentEditable = true;
+                                        commentContentElement.classList.add('bg-white', 'p-2', 'rounded', 'shadow-sm');
+                                        const saveButton = document.createElement('span');
+                                        saveButton.textContent = 'save';
+                                        saveButton.classList.add('save-comment', 'text-green-500', 'cursor-pointer');
+                                        e.target.style.display = 'none';
+                                        e.target.parentElement.appendChild(saveButton);
+                                        saveButton.addEventListener('click', async function () {
+                                            const newContent = commentContentElement.textContent;
                                             try {
                                                 await updateDoc(commentRef, { content: newContent });
-                                                e.target.parentElement.parentElement.querySelector('p').textContent = newContent;
+                                                commentContentElement.contentEditable = false;
+                                                commentContentElement.classList.remove('bg-white', 'p-2', 'rounded', 'shadow-sm');
+                                                e.target.style.display = 'inline';
+                                                saveButton.remove();
                                             } catch (error) {
                                                 console.error("Error updating comment:", error);
                                             }
-                                        }
+                                        });
                                     } else {
                                         alert("You do not have permission to edit this comment.");
                                     }
@@ -200,9 +213,8 @@
         </div>
     </nav>
     <main class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">Post Detail</h1>
-        <input id="post-title" class="text-xl font-bold mb-4 block w-full border-gray-300 rounded-md shadow-sm" readonly />
-        <textarea id="post-content" class="text-gray-700 block w-full border-gray-300 rounded-md shadow-sm" rows="10" readonly></textarea>
+        <h1 id="post-title" class="text-2xl font-bold mb-4"></h1>
+        <p id="post-content" class="text-gray-700 mb-4"></p>
         <button id="edit-button" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Edit</button>
         <button id="save-button" class="bg-green-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Save</button>
         <button id="delete-button" class="bg-red-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Delete</button>
