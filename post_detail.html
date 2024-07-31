@@ -97,11 +97,19 @@
                         const commentsSnapshot = await getDocs(commentsQuery);
                         commentsSnapshot.forEach((commentDoc) => {
                             const comment = commentDoc.data();
+                            const commentDate = new Date(comment.timestamp.toDate()).toLocaleString();
                             const commentElement = document.createElement('div');
                             commentElement.className = 'bg-gray-100 p-2 rounded mt-2';
                             commentElement.innerHTML = `
                                 <p>${comment.content}</p>
-                                ${comment.uid === user.uid ? `<button class="edit-comment" data-id="${commentDoc.id}">Edit</button> <button class="delete-comment" data-id="${commentDoc.id}">Delete</button>` : ''}
+                                <small>${commentDate}</small>
+                                <div class="text-sm">
+                                    ${comment.uid === user.uid 
+                                        ? `<span class="edit-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}">edit</span> 
+                                           <span class="delete-comment text-red-500 cursor-pointer" data-id="${commentDoc.id}">delete</span>`
+                                        : '<span class="text-gray-500">You do not have permission to edit or delete this comment.</span>'
+                                    }
+                                </div>
                             `;
                             commentList.appendChild(commentElement);
                         });
@@ -111,16 +119,23 @@
                             e.preventDefault();
                             const commentContent = commentInput.value;
                             try {
-                                await addDoc(commentsRef, {
+                                const newComment = await addDoc(commentsRef, {
                                     content: commentContent,
                                     uid: user.uid,
                                     timestamp: new Date()
                                 });
                                 commentInput.value = '';
-                                // 새로 추가된 댓글을 즉시 표시
+                                const newCommentDate = new Date().toLocaleString();
                                 const newCommentElement = document.createElement('div');
                                 newCommentElement.className = 'bg-gray-100 p-2 rounded mt-2';
-                                newCommentElement.innerHTML = `<p>${commentContent}</p>`;
+                                newCommentElement.innerHTML = `
+                                    <p>${commentContent}</p>
+                                    <small>${newCommentDate}</small>
+                                    <div class="text-sm">
+                                        <span class="edit-comment text-blue-500 cursor-pointer" data-id="${newComment.id}">edit</span> 
+                                        <span class="delete-comment text-red-500 cursor-pointer" data-id="${newComment.id}">delete</span>
+                                    </div>
+                                `;
                                 commentList.appendChild(newCommentElement);
                             } catch (error) {
                                 console.error("Error adding comment: ", error);
@@ -134,25 +149,36 @@
                                 const commentRef = doc(db, "posts", postId, "comments", commentId);
                                 const commentDoc = await getDoc(commentRef);
                                 if (commentDoc.exists()) {
-                                    const newContent = prompt("Edit your comment:", commentDoc.data().content);
-                                    if (newContent !== null) {
-                                        try {
-                                            await updateDoc(commentRef, { content: newContent });
-                                            e.target.parentElement.querySelector('p').textContent = newContent;
-                                        } catch (error) {
-                                            console.error("Error updating comment:", error);
+                                    if (commentDoc.data().uid === user.uid) {
+                                        const newContent = prompt("Edit your comment:", commentDoc.data().content);
+                                        if (newContent !== null) {
+                                            try {
+                                                await updateDoc(commentRef, { content: newContent });
+                                                e.target.parentElement.parentElement.querySelector('p').textContent = newContent;
+                                            } catch (error) {
+                                                console.error("Error updating comment:", error);
+                                            }
                                         }
+                                    } else {
+                                        alert("You do not have permission to edit this comment.");
                                     }
                                 }
                             } else if (e.target.classList.contains('delete-comment')) {
                                 const commentId = e.target.dataset.id;
                                 const commentRef = doc(db, "posts", postId, "comments", commentId);
-                                if (confirm("Are you sure you want to delete this comment?")) {
-                                    try {
-                                        await deleteDoc(commentRef);
-                                        e.target.parentElement.remove();
-                                    } catch (error) {
-                                        console.error("Error deleting comment:", error);
+                                const commentDoc = await getDoc(commentRef);
+                                if (commentDoc.exists()) {
+                                    if (commentDoc.data().uid === user.uid) {
+                                        if (confirm("Are you sure you want to delete this comment?")) {
+                                            try {
+                                                await deleteDoc(commentRef);
+                                                e.target.parentElement.parentElement.remove();
+                                            } catch (error) {
+                                                console.error("Error deleting comment:", error);
+                                            }
+                                        }
+                                    } else {
+                                        alert("You do not have permission to delete this comment.");
                                     }
                                 }
                             }
@@ -183,13 +209,13 @@
 
         <div id="comments-section" class="mt-6">
             <h2 class="text-xl font-bold mb-2">Comments</h2>
+            <div id="comment-list" class="space-y-2">
+                <!-- Comments will be loaded here dynamically -->
+            </div>
             <form id="comment-form" class="mb-4">
                 <textarea id="comment-input" class="w-full border-gray-300 rounded-md shadow-sm mb-2" rows="3" placeholder="Write a comment..." required></textarea>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Add Comment</button>
             </form>
-            <div id="comment-list" class="space-y-2">
-                <!-- Comments will be loaded here dynamically -->
-            </div>
         </div>
     </main>
 </body>
