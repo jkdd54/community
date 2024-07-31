@@ -8,8 +8,8 @@
     <script type="module">
         // Firebase 모듈 로드
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
         // Firebase 구성 정보
         const firebaseConfig = {
@@ -35,25 +35,30 @@
         document.addEventListener('DOMContentLoaded', function () {
             const postForm = document.getElementById('post-form');
 
-            if (postForm) {
-                postForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    const title = document.getElementById('title').value;
-                    const content = document.getElementById('content').value;
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    if (postForm) {
+                        postForm.addEventListener('submit', async function (e) {
+                            e.preventDefault();
+                            const title = document.getElementById('title').value;
+                            const content = document.getElementById('content').value;
 
-                    try {
-                        await addDoc(collection(db, "posts"), {
-                            title: title,
-                            content: content,
-                            timestamp: new Date()
+                            try {
+                                await addDoc(collection(db, "posts"), {
+                                    title: title,
+                                    content: content,
+                                    uid: user.uid, // 사용자 UID 추가
+                                    timestamp: new Date()
+                                });
+                                console.log('Document successfully written!');
+                                window.location.href = 'index.html';
+                            } catch (error) {
+                                console.error("Error adding document: ", error);
+                            }
                         });
-                        console.log('Document successfully written!');
-                        window.location.href = 'index.html';
-                    } catch (error) {
-                        console.error("Error adding document: ", error);
                     }
-                });
-            }
+                }
+            });
         });
     </script>
 </head>

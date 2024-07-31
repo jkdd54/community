@@ -8,7 +8,8 @@
     <script type="module">
         // Firebase 모듈 로드
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
         // Firebase 구성 정보
         const firebaseConfig = {
@@ -24,26 +25,44 @@
         // Firebase 초기화
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         document.addEventListener('DOMContentLoaded', async function () {
             const postTitle = document.getElementById('post-title');
             const postContent = document.getElementById('post-content');
+            const deleteButton = document.getElementById('delete-button');
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('id');
 
-            if (postId) {
-                const docRef = doc(db, "posts", postId);
-                const docSnap = await getDoc(docRef);
+            onAuthStateChanged(auth, async (user) => {
+                if (postId && user) {
+                    const docRef = doc(db, "posts", postId);
+                    const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
-                    const post = docSnap.data();
-                    console.log('Post detail:', post);
-                    postTitle.textContent = post.title;
-                    postContent.textContent = post.content;
-                } else {
-                    console.log("No such document!");
+                    if (docSnap.exists()) {
+                        const post = docSnap.data();
+                        console.log('Post detail:', post);
+                        postTitle.textContent = post.title;
+                        postContent.textContent = post.content;
+
+                        if (post.uid === user.uid) {
+                            deleteButton.style.display = 'block';
+                        }
+
+                        deleteButton.addEventListener('click', async function () {
+                            try {
+                                await deleteDoc(docRef);
+                                console.log('Document successfully deleted!');
+                                window.location.href = 'index.html';
+                            } catch (error) {
+                                console.error("Error deleting document: ", error);
+                            }
+                        });
+                    } else {
+                        console.log("No such document!");
+                    }
                 }
-            }
+            });
         });
     </script>
 </head>
@@ -60,6 +79,7 @@
         <p id="post-content" class="text-gray-700">
             <!-- Post content will be loaded here dynamically -->
         </p>
+        <button id="delete-button" class="bg-red-600 text-white px-4 py-2 rounded-md" style="display: none;">Delete</button>
     </main>
 </body>
 </html>
