@@ -7,36 +7,27 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Press Start 2P', cursive;
-        }
-
         .post-actions {
             display: flex;
             justify-content: flex-end;
             gap: 0.5rem;
         }
-
         .post-actions button {
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
         }
-
         .reply {
             margin-left: 1rem;
         }
-
         nav {
             position: absolute;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
         }
-
         nav a {
             font-family: 'Press Start 2P', cursive;
         }
-
         .content {
             font-family: 'Arial', sans-serif;
         }
@@ -83,7 +74,7 @@
             onAuthStateChanged(auth, async (user) => {
                 currentUser = user;
 
-                if (postId && user) {
+                if (postId) {
                     const docRef = doc(db, "posts", postId);
                     const docSnap = await getDoc(docRef);
 
@@ -98,7 +89,7 @@
                             postDate.textContent += ` (수정됨, ${new Date(post.lastEdited.toDate()).toLocaleString()})`;
                         }
 
-                        if (post.uid === user.uid) {
+                        if (user && post.uid === user.uid) {
                             editButton.style.display = 'block';
                             deleteButton.style.display = 'block';
                         }
@@ -123,7 +114,7 @@
                                     lastEdited: new Date()
                                 });
                                 console.log('Document successfully updated!');
-                                window.location.href = 'index.html';
+                                window.location.reload();
                             } catch (error) {
                                 console.error("Error updating document: ", error);
                             }
@@ -157,7 +148,7 @@
                                         <p class="comment-content">${comment.content}</p>
                                         <small>${comment.nickname} - ${commentDate}${comment.lastEdited ? ` (수정됨, ${new Date(comment.lastEdited.toDate()).toLocaleString()})` : ''}</small>
                                         <div class="text-sm">
-                                            ${comment.uid === user.uid 
+                                            ${user && comment.uid === user.uid 
                                                 ? `<span class="edit-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}" data-level="${level}">edit</span> 
                                                    <span class="delete-comment text-red-500 cursor-pointer" data-id="${commentDoc.id}" data-level="${level}">delete</span>`
                                                 : '<span class="text-gray-500">You do not have permission to edit or delete this comment.</span>'

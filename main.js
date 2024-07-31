@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const post = {
                 id: Date.now(),
                 title,
-                content
+                content,
+                timestamp: new Date().toISOString()
             };
 
             let posts = JSON.parse(localStorage.getItem('posts')) || [];
@@ -31,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
         posts.forEach(post => {
             const postElement = document.createElement('div');
             postElement.className = 'bg-white p-4 rounded shadow-sm';
-            postElement.innerHTML = `<h2 class="text-xl font-bold">${post.title}</h2><p>${post.content.substring(0, 100)}...</p>`;
+            postElement.innerHTML = `<h2 class="text-xl font-bold"><a href="post_detail.html?id=${post.id}">${post.title}</a></h2><p>${post.content.substring(0, 100)}...</p>`;
             recentPosts.appendChild(postElement);
         });
     }
