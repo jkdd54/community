@@ -33,6 +33,12 @@
             margin-top: 20px;
             width: 80%;
             max-width: 600px;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
         }
 
         @keyframes blink-caret {
@@ -51,19 +57,21 @@
             font-family: 'Press Start 2P', cursive;
         }
     </style>
+    <!-- Include World ID SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="p-4 text-black">
         <a href="index.html" class="mr-4">Home</a>
         <a href="create_post.html" class="mr-4">Create Post</a>
         <a href="post_list.html" class="mr-4">All Posts</a>
-        <button id="login-button" class="bg-blue-600 text-white px-4 py-2 rounded-md">월드 ID로 로그인</button>
     </nav>
     <div class="container-center">
         <img src="logo.svg" alt="Logo" class="logo mx-auto">
         <div class="typing text-gray-700" id="typing-text">
             월드 커뮤니티는 세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
         </div>
+        <button id="world-id-login" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4">Verify with World ID</button>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -79,41 +87,30 @@
                     index++;
                     setTimeout(type, 50);
                 } else {
-                    textElement.style.borderRight = 'none';
+                    textElement.style.borderRight = 'none'; // Remove the blinking cursor after typing
                 }
             }
 
             type();
+
+            // World ID Widget setup
+            const worldIDButton = document.getElementById('world-id-login');
+
+            worldIDButton.addEventListener('click', function() {
+                new IDKitWidget({
+                    app_id: "app_82a1bab466c1d1ae219e5049512aef97",
+                    action: "koreandev",
+                    onSuccess: (response) => {
+                        console.log("Verification successful:", response);
+                        // Handle successful verification
+                    },
+                    onError: (error) => {
+                        console.error("Verification failed:", error);
+                        // Handle verification error
+                    }
+                }).open();
+            });
         });
-
-        window.onload = () => {
-            import('https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js')
-                .then(({ IDKitWidget }) => {
-                    const widgetConfig = {
-                        app_id: 'app_82a1bab466c1d1ae219e5049512aef97',
-                        action: 'koreandev',
-                        signal: 'login',
-                        onSuccess: (proof) => {
-                            console.log('Authenticated:', proof);
-                            localStorage.setItem('worldID', JSON.stringify(proof));
-                            window.location.reload();
-                        },
-                        onError: (error) => {
-                            console.error('Authentication failed:', error);
-                        }
-                    };
-
-                    const worldIDWidget = new IDKitWidget(widgetConfig);
-
-                    document.getElementById('login-button').addEventListener('click', () => {
-                        console.log("Login button clicked");
-                        worldIDWidget.open();
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error loading IDKitWidget:', error);
-                });
-        }
     </script>
 </body>
 </html>
