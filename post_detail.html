@@ -36,7 +36,7 @@
         // Firebase 모듈 로드
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
         import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, addDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
         // Firebase 구성 정보
         const firebaseConfig = {
@@ -90,9 +90,13 @@
                             postDate.textContent += ` (수정됨, ${new Date(post.lastEdited.toDate()).toLocaleString()})`;
                         }
 
+                        // 현재 사용자와 게시글 작성자의 UID를 비교
                         if (post.uid === user.uid) {
                             editButton.style.display = 'block';
                             deleteButton.style.display = 'block';
+                        } else {
+                            editButton.style.display = 'none';
+                            deleteButton.style.display = 'none';
                         }
 
                         editButton.addEventListener('click', function () {
@@ -149,7 +153,7 @@
                                         <p class="comment-content">${comment.content}</p>
                                         <small>${comment.nickname} - ${commentDate}${comment.lastEdited ? ` (수정됨, ${new Date(comment.lastEdited.toDate()).toLocaleString()})` : ''}</small>
                                         <div class="text-sm">
-                                            ${comment.uid === user.uid 
+                                            ${comment.uid === currentUser.uid 
                                                 ? `<span class="edit-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}" data-level="${level}">edit</span> 
                                                    <span class="delete-comment text-red-500 cursor-pointer" data-id="${commentDoc.id}" data-level="${level}">delete</span>`
                                                 : '<span class="text-gray-500">You do not have permission to edit or delete this comment.</span>'
