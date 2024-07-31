@@ -273,9 +273,7 @@
                                 const commentId = e.target.dataset.id;
                                 const parentNickname = e.target.dataset.nickname;
                                 const level = parseInt(e.target.dataset.level) + 1;
-                                const commentRef = level === 1
-                                    ? collection(db, "posts", postId, "comments", commentId, "replies")
-                                    : collection(db, "posts", postId, "comments", e.target.closest('.comment').dataset.id, "replies", commentId, "replies");
+                                const commentRef = collection(db, "posts", postId, "comments", commentId, "replies");
                                 const replyInput = document.createElement('textarea');
                                 const replyNickname = document.createElement('input');
                                 replyInput.classList.add('w-full', 'border-gray-300', 'rounded-md', 'shadow-sm', 'mb-2', 'mt-2');
@@ -305,7 +303,7 @@
                                         });
                                         const newReplyDate = new Date().toLocaleString();
                                         const newReplyElement = document.createElement('div');
-                                        newReplyElement.className = `p-2 mt-2 ${level >= 1 ? 'reply' : ''}`;
+                                        newReplyElement.className = `p-2 mt-2 reply`;
                                         newReplyElement.innerHTML = `
                                             <div class="comment" data-id="${newReply.id}" data-level="${level}">
                                                 <small>Replying to ${parentNickname}</small>
@@ -314,7 +312,7 @@
                                                 <div class="text-sm">
                                                     <span class="edit-comment text-blue-500 cursor-pointer" data-id="${newReply.id}" data-level="${level}">edit</span> 
                                                     <span class="delete-comment text-red-500 cursor-pointer" data-id="${newReply.id}" data-level="${level}">delete</span>
-                                                    ${level < 2 ? `<span class="reply-comment text-blue-500 cursor-pointer" data-id="${newReply.id}" data-nickname="${replyNicknameValue}" data-level="${level}">reply</span>` : ''}
+                                                    <span class="reply-comment text-blue-500 cursor-pointer" data-id="${newReply.id}" data-nickname="${replyNicknameValue}" data-level="${level}">reply</span>
                                                 </div>
                                             </div>
                                         `;
