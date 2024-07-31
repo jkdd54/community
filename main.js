@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { getFirestore, collection, addDoc, query, orderBy, limit, getDocs, doc, getDoc } from "firebase/firestore";
 import { getAuth, onAuthStateChanged, signInAnonymously } from "firebase/auth";
 
 // Firebase 구성 정보
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
     getDocs(q).then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         const post = doc.data();
-        console.log('Post:', post);
+        console.log('Recent post:', post);
         const postElement = document.createElement('div');
         postElement.className = 'bg-white p-4 rounded shadow-sm';
         postElement.innerHTML = `<h2 class="text-xl font-bold">${post.title}</h2><p>${post.content.substring(0, 100)}...</p>`;
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
       getDoc(docRef).then((doc) => {
         if (doc.exists()) {
           const post = doc.data();
-          console.log('Post:', post);
+          console.log('Post detail:', post);
           postTitle.textContent = post.title;
           postContent.textContent = post.content;
         } else {
