@@ -8,7 +8,7 @@
     <script type="module">
         // Firebase 모듈 로드
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
         // Firebase 구성 정보
@@ -30,13 +30,20 @@
         document.addEventListener('DOMContentLoaded', async function () {
             const postTitle = document.getElementById('post-title');
             const postContent = document.getElementById('post-content');
+            const commentForm = document.getElementById('comment-form');
+            const commentInput = document.getElementById('comment-input');
+            const commentList = document.getElementById('comment-list');
             const editButton = document.getElementById('edit-button');
             const saveButton = document.getElementById('save-button');
             const deleteButton = document.getElementById('delete-button');
             const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('id');
 
+            let currentUser = null;
+
             onAuthStateChanged(auth, async (user) => {
+                currentUser = user;
+
                 if (postId && user) {
                     const docRef = doc(db, "posts", postId);
                     const docSnap = await getDoc(docRef);
@@ -83,6 +90,69 @@
                                 console.error("Error deleting document: ", error);
                             }
                         });
+
+                        // 댓글 로드
+                        const commentsRef = collection(db, "posts", postId, "comments");
+                        const commentsQuery = query(commentsRef, orderBy("timestamp", "asc"));
+                        const commentsSnapshot = await getDocs(commentsQuery);
+                        commentsSnapshot.forEach((commentDoc) => {
+                            const comment = commentDoc.data();
+                            const commentElement = document.createElement('div');
+                            commentElement.className = 'bg-gray-100 p-2 rounded mt-2';
+                            commentElement.innerHTML = `
+                                <p>${comment.content}</p>
+                                ${comment.uid === user.uid ? `<button class="edit-comment" data-id="${commentDoc.id}">Edit</button> <button class="delete-comment" data-id="${commentDoc.id}">Delete</button>` : ''}
+                            `;
+                            commentList.appendChild(commentElement);
+                        });
+
+                        // 댓글 추가
+                        commentForm.addEventListener('submit', async function (e) {
+                            e.preventDefault();
+                            const commentContent = commentInput.value;
+                            try {
+                                await addDoc(commentsRef, {
+                                    content: commentContent,
+                                    uid: user.uid,
+                                    timestamp: new Date()
+                                });
+                                commentInput.value = '';
+                                window.location.reload(); // 새로고침하여 댓글 목록을 업데이트
+                            } catch (error) {
+                                console.error("Error adding comment: ", error);
+                            }
+                        });
+
+                        // 댓글 수정 및 삭제
+                        commentList.addEventListener('click', async function (e) {
+                            if (e.target.classList.contains('edit-comment')) {
+                                const commentId = e.target.dataset.id;
+                                const commentRef = doc(db, "posts", postId, "comments", commentId);
+                                const commentDoc = await getDoc(commentRef);
+                                if (commentDoc.exists()) {
+                                    const newContent = prompt("Edit your comment:", commentDoc.data().content);
+                                    if (newContent !== null) {
+                                        try {
+                                            await updateDoc(commentRef, { content: newContent });
+                                            window.location.reload(); // 새로고침하여 댓글 목록을 업데이트
+                                        } catch (error) {
+                                            console.error("Error updating comment:", error);
+                                        }
+                                    }
+                                }
+                            } else if (e.target.classList.contains('delete-comment')) {
+                                const commentId = e.target.dataset.id;
+                                const commentRef = doc(db, "posts", postId, "comments", commentId);
+                                if (confirm("Are you sure you want to delete this comment?")) {
+                                    try {
+                                        await deleteDoc(commentRef);
+                                        window.location.reload(); // 새로고침하여 댓글 목록을 업데이트
+                                    } catch (error) {
+                                        console.error("Error deleting comment:", error);
+                                    }
+                                }
+                            }
+                        });
                     } else {
                         console.log("No such document!");
                     }
@@ -106,6 +176,17 @@
         <button id="edit-button" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Edit</button>
         <button id="save-button" class="bg-green-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Save</button>
         <button id="delete-button" class="bg-red-600 text-white px-4 py-2 rounded-md mt-4" style="display: none;">Delete</button>
+
+        <div id="comments-section" class="mt-6">
+            <h2 class="text-xl font-bold mb-2">Comments</h2>
+            <form id="comment-form" class="mb-4">
+                <textarea id="comment-input" class="w-full border-gray-300 rounded-md shadow-sm mb-2" rows="3" placeholder="Write a comment..." required></textarea>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Add Comment</button>
+            </form>
+            <div id="comment-list" class="space-y-2">
+                <!-- Comments will be loaded here dynamically -->
+            </div>
+        </div>
     </main>
 </body>
 </html>
