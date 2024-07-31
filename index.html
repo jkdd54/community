@@ -7,6 +7,51 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.0/dist/idkit.js"></script>
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .container-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .logo {
+            max-width: 20%;
+            height: auto;
+        }
+
+        .typing {
+            font-size: 1.25rem;
+            white-space: pre-wrap;
+            overflow: hidden;
+            border-right: 0.15em solid orange;
+            margin-top: 20px;
+            width: 80%;
+            max-width: 600px;
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: orange }
+        }
+
+        nav {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        nav a {
+            font-family: 'Press Start 2P', cursive;
+        }
+    </style>
 </head>
 <body class="bg-gray-100">
     <nav class="p-4 text-black">
@@ -18,28 +63,10 @@
     <div class="container-center">
         <img src="logo.svg" alt="Logo" class="logo mx-auto">
         <div class="typing text-gray-700" id="typing-text">
-            세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
+            월드 커뮤니티는 세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
         </div>
     </div>
     <script>
-        const worldID = new WorldID({
-            clientID: 'app_82a1bab466c1d1ae219e5049512aef97',
-            identifier: 'koreandev',
-            redirectURI: window.location.href,
-            onSuccess: (response) => {
-                console.log('Authenticated:', response);
-                localStorage.setItem('worldID', JSON.stringify(response));
-                window.location.reload();
-            },
-            onFailure: (error) => {
-                console.error('Authentication failed:', error);
-            }
-        });
-
-        document.getElementById('login-button').addEventListener('click', () => {
-            worldID.signIn();
-        });
-
         document.addEventListener('DOMContentLoaded', function() {
             const textElement = document.getElementById('typing-text');
             const text = textElement.textContent;
@@ -58,6 +85,25 @@
             }
 
             type();
+        });
+
+        const worldID = new WorldID({
+            clientID: 'app_82a1bab466c1d1ae219e5049512aef97',
+            identifier: 'koreandev',
+            redirectURI: window.location.href,
+            onSuccess: (response) => {
+                console.log('Authenticated:', response);
+                localStorage.setItem('worldID', JSON.stringify(response));
+                window.location.reload();
+            },
+            onFailure: (error) => {
+                console.error('Authentication failed:', error);
+            }
+        });
+
+        document.getElementById('login-button').addEventListener('click', () => {
+            console.log("Login button clicked");
+            worldID.signIn();
         });
     </script>
 </body>
