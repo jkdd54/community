@@ -30,6 +30,7 @@
             white-space: pre-wrap;
             overflow: hidden;
             border-right: 0.15em solid orange;
+            animation: blink-caret 0.75s step-end infinite;
             margin-top: 20px;
             width: 80%;
             max-width: 600px;
@@ -75,6 +76,7 @@
             function type() {
                 if (index < text.length) {
                     textElement.textContent += text.charAt(index);
+                    textElement.scrollTop = textElement.scrollHeight; // 스크롤을 항상 아래로 유지
                     index++;
                     setTimeout(type, 50);
                 } else {
