@@ -6,79 +6,41 @@
     <title>Community Site</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Press Start 2P', cursive;
-        }
-
-        .container-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
-
-        .logo {
-            max-width: 20%;
-            height: auto;
-        }
-
-        .typing {
-            font-size: 1.25rem;
-            white-space: pre-wrap;
-            overflow: hidden;
-            border-right: 0.15em solid orange;
-            margin-top: 20px;
-            width: 80%;
-            max-width: 600px;
-        }
-
-        @keyframes blink-caret {
-            from, to { border-color: transparent }
-            50% { border-color: orange }
-        }
-
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
-        }
-
-        .fixed-text {
-            margin-top: 20px;
-            font-size: 1rem;
-            color: gray;
-        }
-
-        nav {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        nav a {
-            font-family: 'Press Start 2P', cursive;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.0/dist/idkit.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="p-4 text-black">
         <a href="index.html" class="mr-4">Home</a>
         <a href="create_post.html" class="mr-4">Create Post</a>
         <a href="post_list.html" class="mr-4">All Posts</a>
+        <button id="login-button" class="bg-blue-600 text-white px-4 py-2 rounded-md">월드 ID로 로그인</button>
     </nav>
     <div class="container-center">
         <img src="logo.svg" alt="Logo" class="logo mx-auto">
-        <div class="fixed-text">
-            월드 커뮤니티는 세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
-        </div>
         <div class="typing text-gray-700" id="typing-text">
-            영지식 증명과 월드 ID는 사용자의 개인 정보를 수집하거나 저장하지 않으면서도 신원 확인을 가능하게 하는 혁신적인 기술입니다.
+            세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
         </div>
     </div>
     <script>
+        const worldID = new WorldID({
+            clientID: 'app_82a1bab466c1d1ae219e5049512aef97',
+            identifier: 'koreandev',
+            redirectURI: window.location.origin,
+            onSuccess: (response) => {
+                console.log('Authenticated:', response);
+                // 인증 후 사용자 정보 처리
+                localStorage.setItem('worldID', JSON.stringify(response));
+                window.location.reload(); // 인증 후 페이지 새로고침
+            },
+            onFailure: (error) => {
+                console.error('Authentication failed:', error);
+            }
+        });
+
+        document.getElementById('login-button').addEventListener('click', () => {
+            worldID.signIn();
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const textElement = document.getElementById('typing-text');
             const text = textElement.textContent;
@@ -99,6 +61,5 @@
             type();
         });
     </script>
-    <script src="main.js" type="module"></script>
 </body>
 </html>
