@@ -5,6 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community Site</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script type="module">
+        // Firebase 모듈 로드
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
+
+        // Firebase 구성 정보
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGKmefqcWtIPXYqZBzpBETw_IdEfp1bJQ",
+            authDomain: "worldcommunity-ed8b9.firebaseapp.com",
+            projectId: "worldcommunity-ed8b9",
+            storageBucket: "worldcommunity-ed8b9.appspot.com",
+            messagingSenderId: "261985250862",
+            appId: "1:261985250862:web:2b06b9fd30be2eb0d0b9bf",
+            measurementId: "G-5WH98LB695"
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const recentPosts = document.getElementById('recent-posts');
+
+            if (recentPosts) {
+                const q = query(collection(db, "posts"), orderBy("timestamp", "desc"), limit(5));
+                const querySnapshot = await getDocs(q);
+                querySnapshot.forEach((doc) => {
+                    const post = doc.data();
+                    console.log('Recent post:', post);
+                    const postElement = document.createElement('div');
+                    postElement.className = 'bg-white p-4 rounded shadow-sm';
+                    postElement.innerHTML = `<h2 class="text-xl font-bold">${post.title}</h2><p>${post.content.substring(0, 100)}...</p>`;
+                    recentPosts.appendChild(postElement);
+                });
+            }
+        });
+    </script>
 </head>
 <body class="bg-gray-100">
     <nav class="bg-blue-600 p-4 text-white">
@@ -20,6 +57,5 @@
             <!-- Recent posts will be loaded here dynamically -->
         </div>
     </main>
-    <script src="main.js"></script>
 </body>
 </html>
