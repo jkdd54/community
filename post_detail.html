@@ -130,17 +130,17 @@
                                 const comment = commentDoc.data();
                                 const commentDate = new Date(comment.timestamp.toDate()).toLocaleString();
                                 const commentElement = document.createElement('div');
-                                commentElement.className = `p-2 mt-2 ${level === 1 ? 'reply' : ''}`;
+                                commentElement.className = `p-2 mt-2 ${level >= 1 ? 'reply' : ''}`;
                                 commentElement.innerHTML = `
                                     <p class="comment-content">${comment.content}</p>
                                     <small>${comment.nickname} - ${commentDate}${comment.lastEdited ? ` (수정됨, ${new Date(comment.lastEdited.toDate()).toLocaleString()})` : ''}</small>
                                     <div class="text-sm">
                                         ${comment.uid === user.uid 
-                                            ? `<span class="edit-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}">edit</span> 
-                                               <span class="delete-comment text-red-500 cursor-pointer" data-id="${commentDoc.id}">delete</span>`
+                                            ? `<span class="edit-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}" data-level="${level}">edit</span> 
+                                               <span class="delete-comment text-red-500 cursor-pointer" data-id="${commentDoc.id}" data-level="${level}">delete</span>`
                                             : '<span class="text-gray-500">You do not have permission to edit or delete this comment.</span>'
                                         }
-                                        <span class="reply-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}" data-nickname="${comment.nickname}">reply</span>
+                                        <span class="reply-comment text-blue-500 cursor-pointer" data-id="${commentDoc.id}" data-nickname="${comment.nickname}" data-level="${level}">reply</span>
                                     </div>
                                 `;
                                 parentElement.appendChild(commentElement);
@@ -249,6 +249,7 @@
                                 }
                                 const commentId = e.target.dataset.id;
                                 const parentNickname = e.target.dataset.nickname;
+                                const level = parseInt(e.target.dataset.level) + 1;
                                 const commentRef = collection(db, "posts", postId, "comments", commentId, "replies");
                                 const replyInput = document.createElement('textarea');
                                 const replyNickname = document.createElement('input');
@@ -279,15 +280,15 @@
                                         });
                                         const newReplyDate = new Date().toLocaleString();
                                         const newReplyElement = document.createElement('div');
-                                        newReplyElement.className = 'p-2 mt-2 reply';
+                                        newReplyElement.className = `p-2 mt-2 ${level >= 1 ? 'reply' : ''}`;
                                         newReplyElement.innerHTML = `
                                             <small>Replying to ${parentNickname}</small>
                                             <p class="comment-content">${replyContent}</p>
                                             <small>${replyNicknameValue} - ${newReplyDate}</small>
                                             <div class="text-sm">
-                                                <span class="edit-comment text-blue-500 cursor-pointer" data-id="${newReply.id}">edit</span> 
-                                                <span class="delete-comment text-red-500 cursor-pointer" data-id="${newReply.id}">delete</span>
-                                                <span class="reply-comment text-blue-500 cursor-pointer" data-id="${newReply.id}" data-nickname="${replyNicknameValue}">reply</span>
+                                                <span class="edit-comment text-blue-500 cursor-pointer" data-id="${newReply.id}" data-level="${level}">edit</span> 
+                                                <span class="delete-comment text-red-500 cursor-pointer" data-id="${newReply.id}" data-level="${level}">delete</span>
+                                                ${level < 1 ? `<span class="reply-comment text-blue-500 cursor-pointer" data-id="${newReply.id}" data-nickname="${replyNicknameValue}" data-level="${level}">reply</span>` : ''}
                                             </div>
                                         `;
                                         replyContainer.parentElement.appendChild(newReplyElement);
