@@ -30,7 +30,6 @@
             white-space: pre-wrap;
             overflow: hidden;
             border-right: 0.15em solid orange;
-            animation: blink-caret 0.75s step-end infinite;
             margin-top: 20px;
             width: 80%;
             max-width: 600px;
@@ -46,9 +45,10 @@
             to { width: 100% }
         }
 
-        .typing p {
-            display: inline-block;
-            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        .fixed-text {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: gray;
         }
 
         nav {
@@ -71,26 +71,24 @@
     </nav>
     <div class="container-center">
         <img src="logo.svg" alt="Logo" class="logo mx-auto">
+        <div class="fixed-text">
+            월드 커뮤니티는 세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
+        </div>
         <div class="typing text-gray-700" id="typing-text">
-            <p>
-                세계 최대 규모의 커뮤니티를 목표로 한 월드 커뮤니티는 영지식 증명을 통해 사용자의 개인 정보를 수집하거나 저장하지 않으면서도 익명성을 보장하는 월드 ID를 사용하여 접근할 수 있습니다.
-                <br>
-                세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
-            </p>
+            세계 최대 규모의 커뮤니티를 목표로 한 월드 커뮤니티는 영지식 증명을 통해 사용자의 개인 정보를 수집하거나 저장하지 않으면서도 익명성을 보장하는 월드 ID를 사용하여 접근할 수 있습니다.
         </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const textElement = document.getElementById('typing-text');
-            const text = textElement.innerHTML;
-            textElement.innerHTML = '';
+            const text = textElement.textContent;
+            textElement.textContent = '';
 
             let index = 0;
 
             function type() {
                 if (index < text.length) {
-                    textElement.innerHTML += text.charAt(index);
-                    textElement.scrollTop = textElement.scrollHeight; // 스크롤을 항상 아래로 유지
+                    textElement.textContent += text.charAt(index);
                     index++;
                     setTimeout(type, 50);
                 } else {
