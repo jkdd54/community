@@ -25,12 +25,11 @@
         const worldID = new WorldID({
             clientID: 'app_82a1bab466c1d1ae219e5049512aef97',
             identifier: 'koreandev',
-            redirectURI: window.location.origin,
+            redirectURI: window.location.href,
             onSuccess: (response) => {
                 console.log('Authenticated:', response);
-                // 인증 후 사용자 정보 처리
                 localStorage.setItem('worldID', JSON.stringify(response));
-                window.location.reload(); // 인증 후 페이지 새로고침
+                window.location.reload();
             },
             onFailure: (error) => {
                 console.error('Authentication failed:', error);
@@ -54,7 +53,7 @@
                     index++;
                     setTimeout(type, 50);
                 } else {
-                    textElement.style.borderRight = 'none'; // Remove the blinking cursor after typing
+                    textElement.style.borderRight = 'none';
                 }
             }
 
