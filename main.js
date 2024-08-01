@@ -78,14 +78,14 @@ document.addEventListener('DOMContentLoaded', async function () {
     // World ID Widget 설정
     worldIDButton.addEventListener('click', function() {
         const widget = new IDKitWidget({
-            app_id: "app_6c3821fa0dbede374338de59f453db3b", // 올바른 app_id 사용
+            app_id: "app_6c3821fa0dbede374338de59f453db3b",
             action: "verify",
             signal: "login",
             onSuccess: async (response) => {
                 console.log("Verification successful:", response);
 
                 // Send the proof to your API server
-                const res = await fetch('http://localhost:3000/api/verify', {  // Next.js 서버 주소로 수정
+                const res = await fetch('http://localhost:3000/api/verify', { // Next.js 서버 주소로 수정
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
