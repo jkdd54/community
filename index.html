@@ -58,9 +58,8 @@
         }
     </style>
     <!-- Include World ID SDK -->
-    <script type="module">
-        import { IDKitWidget } from 'https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js';
-
+    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js"></script>
+    <script>
         window.addEventListener('DOMContentLoaded', () => {
             const textElement = document.getElementById('typing-text');
             const text = textElement.textContent;
@@ -84,7 +83,7 @@
             const worldIDButton = document.getElementById('world-id-login');
 
             worldIDButton.addEventListener('click', function() {
-                new IDKitWidget({
+                window.IDKit.open({
                     app_id: "app_82a1bab466c1d1ae219e5049512aef97",
                     action: "koreandev",
                     signal: "login",
@@ -96,7 +95,7 @@
                         console.error("Verification failed:", error);
                         // 인증 실패 처리
                     }
-                }).open();
+                });
             });
         });
     </script>
