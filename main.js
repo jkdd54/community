@@ -1,12 +1,12 @@
-document.addEventListener('DOMContentLoaded', async function () {
-    // Firebase 모듈 로드
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-    import { getFirestore, collection, query, getDocs, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
+import { getFirestore, collection, query, getDocs, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+import { IDKitWidget } from 'https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js';
 
+document.addEventListener('DOMContentLoaded', async function () {
     // Firebase 구성 정보
     const firebaseConfig = {
-        apiKey: "AIzaSyDGKmefqcWtIPXYqZBzpBETw_IdEfp1bJQ",
+        apiKey: "API_KEY",
         authDomain: "worldcommunity-ed8b9.firebaseapp.com",
         projectId: "worldcommunity-ed8b9",
         storageBucket: "worldcommunity-ed8b9.appspot.com",
@@ -22,6 +22,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     const postForm = document.getElementById('post-form');
     const recentPosts = document.getElementById('recent-posts');
     const postList = document.getElementById('post-list');
+    const worldIDButton = document.getElementById('world-id-login');
+    const messageElement = document.getElementById('login-message');
 
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
@@ -71,5 +73,44 @@ document.addEventListener('DOMContentLoaded', async function () {
                 });
             }
         }
+    });
+
+    // World ID Widget 설정
+    worldIDButton.addEventListener('click', function() {
+        const widget = new IDKitWidget({
+            app_id: "app_6c3821fa0dbede374338de59f453db3b", // 올바른 app_id 사용
+            action: "verify",
+            signal: "login",
+            onSuccess: async (response) => {
+                console.log("Verification successful:", response);
+
+                // Send the proof to your API server
+                const res = await fetch('http://localhost:3000/api/verify', {  // Next.js 서버 주소로 수정
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ proof: response }),
+                });
+
+                const result = await res.json();
+                if (result.verified) {
+                    messageElement.textContent = "로그인에 성공했습니다";
+                    messageElement.classList.remove('text-red-500');
+                    messageElement.classList.add('text-green-500');
+                } else {
+                    messageElement.textContent = "인증 실패. 다시 시도해 주세요.";
+                    messageElement.classList.remove('text-green-500');
+                    messageElement.classList.add('text-red-500');
+                }
+            },
+            onError: (error) => {
+                console.error("Verification failed:", error);
+                messageElement.textContent = "인증 실패. 다시 시도해 주세요.";
+                messageElement.classList.remove('text-green-500');
+                messageElement.classList.add('text-red-500');
+            }
+        });
+        widget.open();
     });
 });

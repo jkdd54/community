@@ -59,8 +59,23 @@
     </style>
     <!-- Include World ID SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="p-4 text-black">
+        <a href="index.html" class="mr-4">Home</a>
+        <a href="create_post.html" class="mr-4">Create Post</a>
+        <a href="post_list.html" class="mr-4">All Posts</a>
+    </nav>
+    <div class="container-center">
+        <img src="logo.svg" alt="Logo" class="logo mx-auto">
+        <div class="typing text-gray-700" id="typing-text">
+            월드 커뮤니티는 세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
+        </div>
+        <button id="world-id-login" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4">Verify with World ID</button>
+        <p id="login-message" class="mt-4 text-red-500"></p>
+    </div>
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             const textElement = document.getElementById('typing-text');
             const text = textElement.textContent;
             textElement.textContent = '';
@@ -78,41 +93,8 @@
             }
 
             type();
-
-            // World ID Widget 설정
-            const worldIDButton = document.getElementById('world-id-login');
-
-            worldIDButton.addEventListener('click', function() {
-                const widget = new window.IDKitWidget({
-                    app_id: "app_82a1bab466c1d1ae219e5049512aef97",
-                    action: "koreandev",
-                    signal: "login",
-                    onSuccess: (response) => {
-                        console.log("Verification successful:", response);
-                        // 성공적인 인증 처리
-                    },
-                    onError: (error) => {
-                        console.error("Verification failed:", error);
-                        // 인증 실패 처리
-                    }
-                });
-                widget.open();
-            });
         });
     </script>
-</head>
-<body class="bg-gray-100">
-    <nav class="p-4 text-black">
-        <a href="index.html" class="mr-4">Home</a>
-        <a href="create_post.html" class="mr-4">Create Post</a>
-        <a href="post_list.html" class="mr-4">All Posts</a>
-    </nav>
-    <div class="container-center">
-        <img src="logo.svg" alt="Logo" class="logo mx-auto">
-        <div class="typing text-gray-700" id="typing-text">
-            월드 커뮤니티는 세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
-        </div>
-        <button id="world-id-login" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4">Verify with World ID</button>
-    </div>
+    <script src="main.js" type="module"></script>
 </body>
 </html>
