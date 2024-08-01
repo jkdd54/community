@@ -57,10 +57,23 @@
             font-family: 'Press Start 2P', cursive;
         }
     </style>
-    <!-- Include World ID SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="p-4 text-black">
+        <a href="index.html" class="mr-4">Home</a>
+        <a href="create_post.html" class="mr-4">Create Post</a>
+        <a href="post_list.html" class="mr-4">All Posts</a>
+    </nav>
+    <div class="container-center">
+        <img src="logo.svg" alt="Logo" class="logo mx-auto">
+        <div class="typing text-gray-700" id="typing-text">
+            월드 커뮤니티는 세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
+        </div>
+        <button id="world-id-login" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4">Verify with World ID</button>
+        <p id="login-message" class="mt-4 text-red-500"></p>
+    </div>
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             const textElement = document.getElementById('typing-text');
             const text = textElement.textContent;
             textElement.textContent = '';
@@ -78,64 +91,15 @@
             }
 
             type();
-
-            // World ID Widget 설정
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
             const worldIDButton = document.getElementById('world-id-login');
-            const messageElement = document.getElementById('login-message');
-
             worldIDButton.addEventListener('click', function() {
-                const widget = new window.IDKitWidget({
-                    app_id: "app_6c3821fa0dbede374338de59f453db3b",
-                    action: "verify",
-                    signal: "login",
-                    onSuccess: async (response) => {
-                        console.log("Verification successful:", response);
-
-                        // Send the proof to your API server
-                        const res = await fetch('http://localhost:3000/api/verify', { // Next.js 서버 주소로 수정
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ proof: response }),
-                        });
-
-                        const result = await res.json();
-                        if (result.verified) {
-                            messageElement.textContent = "로그인에 성공했습니다";
-                            messageElement.classList.remove('text-red-500');
-                            messageElement.classList.add('text-green-500');
-                        } else {
-                            messageElement.textContent = "인증 실패. 다시 시도해 주세요.";
-                            messageElement.classList.remove('text-green-500');
-                            messageElement.classList.add('text-red-500');
-                        }
-                    },
-                    onError: (error) => {
-                        console.error("Verification failed:", error);
-                        messageElement.textContent = "인증 실패. 다시 시도해 주세요.";
-                        messageElement.classList.remove('text-green-500');
-                        messageElement.classList.add('text-red-500');
-                    }
-                });
-                widget.open();
+                window.location.href = 'http://localhost:3000';
             });
         });
     </script>
-</head>
-<body class="bg-gray-100">
-    <nav class="p-4 text-black">
-        <a href="index.html" class="mr-4">Home</a>
-        <a href="create_post.html" class="mr-4">Create Post</a>
-        <a href="post_list.html" class="mr-4">All Posts</a>
-    </nav>
-    <div class="container-center">
-        <img src="logo.svg" alt="Logo" class="logo mx-auto">
-        <div class="typing text-gray-700" id="typing-text">
-            월드 커뮤니티는 세계 최초로 월드 ID만 사용하는 완전 영지식 증명 커뮤니티입니다.
-        </div>
-        <button id="world-id-login" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4">Verify with World ID</button>
-        <p id="login-message" class="mt-4 text-red-500"></p>
-    </div>
 </body>
 </html>
