@@ -56,7 +56,15 @@
         nav a {
             font-family: 'Press Start 2P', cursive;
         }
+
+        .message {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: green;
+        }
     </style>
+    <!-- Include World ID SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="p-4 text-black">
@@ -71,6 +79,7 @@
         </div>
         <button id="world-id-login" class="bg-blue-600 text-white px-4 py-2 rounded-md mt-4">Verify with World ID</button>
         <p id="login-message" class="mt-4 text-red-500"></p>
+        <p id="success-message" class="message" style="display: none;">로그인에 성공했습니다!</p>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -91,13 +100,44 @@
             }
 
             type();
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('login') === 'success') {
+                document.getElementById('success-message').style.display = 'block';
+            }
+
             const worldIDButton = document.getElementById('world-id-login');
             worldIDButton.addEventListener('click', function() {
-                window.location.href = 'http://localhost:3000';
+                // IDKit 위젯을 사용하여 인증 수행
+                const widget = new window.IDKitWidget({
+                    app_id: "app_6c3821fa0dbede374338de59f453db3b",
+                    action: "verify",
+                    signal: "login",
+                    onSuccess: async (response) => {
+                        console.log("Verification successful:", response);
+
+                        // Send the proof to your API server
+                        const res = await fetch('/api/verify', { // 로컬로 이동할 필요 없이 현재 웹페이지에서 실행
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ proof: response, signal: "login" }),
+                        });
+
+                        const result = await res.json();
+                        if (result.verified) {
+                            window.location.href = 'index.html?login=success';
+                        } else {
+                            document.getElementById('login-message').textContent = "인증 실패. 다시 시도해 주세요.";
+                        }
+                    },
+                    onError: (error) => {
+                        console.error("Verification failed:", error);
+                        document.getElementById('login-message').textContent = "인증 실패. 다시 시도해 주세요.";
+                    }
+                });
+                widget.open();
             });
         });
     </script>

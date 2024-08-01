@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     console.log('Received body:', body);
     const { proof } = body;
     const response = await fetch(
-      'https://developer.worldcoin.org/api/v1/verify/app_staging_129259332fd6f93d4fabaadcc5e4ff9d',
+      'https://developer.worldcoin.org/api/v1/verify/app_6c3821fa0dbede374338de59f453db3b',
       {
         method: 'POST',
         headers: {

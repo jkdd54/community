@@ -1,9 +1,8 @@
-document.addEventListener('DOMContentLoaded', async function () {
-    // Firebase 모듈 로드
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-    import { getFirestore, collection, query, getDocs, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
+import { getFirestore, collection, query, getDocs, orderBy, addDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
+document.addEventListener('DOMContentLoaded', async function () {
     // Firebase 구성 정보
     const firebaseConfig = {
         apiKey: "AIzaSyDGKmefqcWtIPXYqZBzpBETw_IdEfp1bJQ",
