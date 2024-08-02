@@ -16,6 +16,9 @@
         .content {
             font-family: 'Arial', sans-serif;
         }
+        .hidden {
+            display: none;
+        }
     </style>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
@@ -42,8 +45,26 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             const postForm = document.getElementById('post-form');
-            const urlParams = new URLSearchParams(window.location.search);
-            const isWorldIDVerified = urlParams.get('worldid') === 'true';
+            const verifyButton = document.getElementById('verify-world-id');
+            const skipButton = document.getElementById('skip-verification');
+            const qrCodeContainer = document.getElementById('qr-code-container');
+            let isWorldIDVerified = false;
+
+            verifyButton.addEventListener('click', function () {
+                qrCodeContainer.classList.remove('hidden');
+            });
+
+            skipButton.addEventListener('click', function () {
+                qrCodeContainer.classList.add('hidden');
+                isWorldIDVerified = false;
+                alert("World ID 인증 없이 게시글이 작성됩니다.");
+            });
+
+            document.getElementById('qr-code-complete').addEventListener('click', function () {
+                isWorldIDVerified = true;
+                qrCodeContainer.classList.add('hidden');
+                alert("World ID 인증이 완료되었습니다.");
+            });
 
             if (postForm) {
                 postForm.addEventListener('submit', async function (e) {
@@ -84,6 +105,14 @@
             <div>
                 <label for="content" class="block text-sm font-medium text-gray-700">Content</label>
                 <textarea id="content" name="content" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required></textarea>
+            </div>
+            <div>
+                <button type="button" id="verify-world-id" class="bg-blue-600 text-white px-4 py-2 rounded-md">Verify with World ID</button>
+                <button type="button" id="skip-verification" class="bg-gray-600 text-white px-4 py-2 rounded-md">Skip Verification</button>
+            </div>
+            <div id="qr-code-container" class="hidden mt-4">
+                <img src="https://worldcoin.org/verify?t=wld&i=f9d6de43-888b-4be0-89f7-0ca8c6972369&k=8jmlJkJZYWrRUWPd3%2BjkuSYQCnvxKKqT05snqTS4ByM%3D" alt="World ID QR Code">
+                <button type="button" id="qr-code-complete" class="bg-green-600 text-white px-4 py-2 rounded-md mt-2">Complete Verification</button>
             </div>
             <div>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Submit</button>
