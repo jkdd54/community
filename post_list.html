@@ -16,14 +16,16 @@
         .content {
             font-family: 'Arial', sans-serif;
         }
+        .verified {
+            color: green;
+            font-weight: bold;
+        }
     </style>
     <script type="module">
-        // Firebase 모듈 로드
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
         import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
-        // Firebase 구성 정보
         const firebaseConfig = {
             apiKey: "AIzaSyDGKmefqcWtIPXYqZBzpBETw_IdEfp1bJQ",
             authDomain: "worldcommunity-ed8b9.firebaseapp.com",
@@ -34,7 +36,6 @@
             measurementId: "G-5WH98LB695"
         };
 
-        // Firebase 초기화
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
@@ -50,7 +51,11 @@
                         console.log('Post:', post);
                         const postElement = document.createElement('div');
                         postElement.className = 'bg-white p-4 rounded shadow-sm';
-                        postElement.innerHTML = `<h2 class="text-xl font-bold"><a href="post_detail.html?id=${doc.id}">${post.title}</a></h2><p>${post.content.substring(0, 100)}...</p>`;
+                        postElement.innerHTML = `
+                            <h2 class="text-xl font-bold"><a href="post_detail.html?id=${doc.id}">${post.title}</a></h2>
+                            <p>${post.content.substring(0, 100)}...</p>
+                            ${post.worldIDVerified ? '<p class="verified">World ID Verified</p>' : ''}
+                        `;
                         postList.appendChild(postElement);
                     });
                 }).catch((error) => {

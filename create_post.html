@@ -18,12 +18,10 @@
         }
     </style>
     <script type="module">
-        // Firebase 모듈 로드
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
 
-        // Firebase 구성 정보
         const firebaseConfig = {
             apiKey: "AIzaSyDGKmefqcWtIPXYqZBzpBETw_IdEfp1bJQ",
             authDomain: "worldcommunity-ed8b9.firebaseapp.com",
@@ -34,18 +32,18 @@
             measurementId: "G-5WH98LB695"
         };
 
-        // Firebase 초기화
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // 익명 사용자로 로그인
         signInAnonymously(auth).catch((error) => {
             console.error("Error signing in anonymously: ", error);
         });
 
         document.addEventListener('DOMContentLoaded', function () {
             const postForm = document.getElementById('post-form');
+            const urlParams = new URLSearchParams(window.location.search);
+            const isWorldIDVerified = urlParams.get('worldid') === 'true';
 
             if (postForm) {
                 postForm.addEventListener('submit', async function (e) {
@@ -57,7 +55,8 @@
                         await addDoc(collection(db, "posts"), {
                             title: title,
                             content: content,
-                            timestamp: new Date()
+                            timestamp: new Date(),
+                            worldIDVerified: isWorldIDVerified
                         });
                         console.log('Document successfully written!');
                         window.location.href = 'index.html';
