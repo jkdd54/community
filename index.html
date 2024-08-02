@@ -117,7 +117,7 @@
                         console.log("Verification successful:", response);
 
                         // Send the proof to your API server
-                        const res = await fetch('/api/verify', { // 로컬로 이동할 필요 없이 현재 웹페이지에서 실행
+                        const res = await fetch('/api/verify', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
