@@ -16,78 +16,13 @@
         .content {
             font-family: 'Arial', sans-serif;
         }
-        .hidden {
-            display: none;
+        .verified-badge {
+            color: green;
+            font-weight: bold;
         }
     </style>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.1.1/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDGKmefqcWtIPXYqZBzpBETw_IdEfp1bJQ",
-            authDomain: "worldcommunity-ed8b9.firebaseapp.com",
-            projectId: "worldcommunity-ed8b9",
-            storageBucket: "worldcommunity-ed8b9.appspot.com",
-            messagingSenderId: "261985250862",
-            appId: "1:261985250862:web:2b06b9fd30be2eb0d0b9bf",
-            measurementId: "G-5WH98LB695"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        signInAnonymously(auth).catch((error) => {
-            console.error("Error signing in anonymously: ", error);
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const postForm = document.getElementById('post-form');
-            const verifyButton = document.getElementById('verify-world-id');
-            const skipButton = document.getElementById('skip-verification');
-            const qrCodeContainer = document.getElementById('qr-code-container');
-            let isWorldIDVerified = false;
-
-            verifyButton.addEventListener('click', function () {
-                qrCodeContainer.classList.remove('hidden');
-            });
-
-            skipButton.addEventListener('click', function () {
-                qrCodeContainer.classList.add('hidden');
-                isWorldIDVerified = false;
-                alert("World ID 인증 없이 게시글이 작성됩니다.");
-            });
-
-            document.getElementById('qr-code-complete').addEventListener('click', function () {
-                isWorldIDVerified = true;
-                qrCodeContainer.classList.add('hidden');
-                alert("World ID 인증이 완료되었습니다.");
-            });
-
-            if (postForm) {
-                postForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-                    const title = document.getElementById('title').value;
-                    const content = document.getElementById('content').value;
-
-                    try {
-                        await addDoc(collection(db, "posts"), {
-                            title: title,
-                            content: content,
-                            timestamp: new Date(),
-                            worldIDVerified: isWorldIDVerified
-                        });
-                        console.log('Document successfully written!');
-                        window.location.href = 'index.html';
-                    } catch (error) {
-                        console.error("Error adding document: ", error);
-                    }
-                });
-            }
-        });
-    </script>
+    <!-- Include World ID SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="p-4 text-black">
@@ -108,16 +43,68 @@
             </div>
             <div>
                 <button type="button" id="verify-world-id" class="bg-blue-600 text-white px-4 py-2 rounded-md">Verify with World ID</button>
-                <button type="button" id="skip-verification" class="bg-gray-600 text-white px-4 py-2 rounded-md">Skip Verification</button>
-            </div>
-            <div id="qr-code-container" class="hidden mt-4">
-                <img src="https://worldcoin.org/verify?t=wld&i=f9d6de43-888b-4be0-89f7-0ca8c6972369&k=8jmlJkJZYWrRUWPd3%2BjkuSYQCnvxKKqT05snqTS4ByM%3D" alt="World ID QR Code">
-                <button type="button" id="qr-code-complete" class="bg-green-600 text-white px-4 py-2 rounded-md mt-2">Complete Verification</button>
             </div>
             <div>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Submit</button>
             </div>
         </form>
     </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const postForm = document.getElementById('post-form');
+            let isVerified = false;
+
+            const worldIDButton = document.getElementById('verify-world-id');
+            worldIDButton.addEventListener('click', function() {
+                const widget = new window.IDKitWidget({
+                    app_id: "app_6c3821fa0dbede374338de59f453db3b",
+                    action: "verify",
+                    signal: "login",
+                    onSuccess: async (response) => {
+                        const res = await fetch('/verify', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ proof: response, signal: "login" }),
+                        });
+
+                        const result = await res.json();
+                        if (result.verified) {
+                            isVerified = true;
+                            alert('World ID 인증 성공!');
+                        } else {
+                            alert('World ID 인증 실패. 다시 시도해 주세요.');
+                        }
+                    },
+                    onError: (error) => {
+                        console.error("Verification failed:", error);
+                        alert('World ID 인증 실패. 다시 시도해 주세요.');
+                    }
+                });
+                widget.open();
+            });
+
+            postForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const title = document.getElementById('title').value;
+                const content = document.getElementById('content').value;
+
+                try {
+                    await fetch('/create_post', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ title, content, isVerified }),
+                    });
+                    alert('게시글이 성공적으로 작성되었습니다.');
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    console.error("Error adding document: ", error);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
