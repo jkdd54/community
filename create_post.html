@@ -16,13 +16,7 @@
         .content {
             font-family: 'Arial', sans-serif;
         }
-        .verified-badge {
-            color: green;
-            font-weight: bold;
-        }
     </style>
-    <!-- Include World ID SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@worldcoin/idkit@1.0.4/dist/index.umd.min.js"></script>
 </head>
 <body class="bg-gray-100">
     <nav class="p-4 text-black">
@@ -42,69 +36,12 @@
                 <textarea id="content" name="content" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required></textarea>
             </div>
             <div>
-                <button type="button" id="verify-world-id" class="bg-blue-600 text-white px-4 py-2 rounded-md">Verify with World ID</button>
-            </div>
-            <div>
+                <button type="button" id="verify-with-world-id" class="bg-blue-600 text-white px-4 py-2 rounded-md">Verify with World ID</button>
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Submit</button>
             </div>
         </form>
+        <script src="public/js/@worldcoin/index.js"></script>
+        <script src="create_post.js"></script>
     </main>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const postForm = document.getElementById('post-form');
-            let isVerified = false;
-
-            const worldIDButton = document.getElementById('verify-world-id');
-            worldIDButton.addEventListener('click', function() {
-                const widget = new window.IDKitWidget({
-                    app_id: "app_6c3821fa0dbede374338de59f453db3b",
-                    action: "verify",
-                    signal: "login",
-                    onSuccess: async (response) => {
-                        const res = await fetch('/verify', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ proof: response, signal: "login" }),
-                        });
-
-                        const result = await res.json();
-                        if (result.verified) {
-                            isVerified = true;
-                            alert('World ID 인증 성공!');
-                        } else {
-                            alert('World ID 인증 실패. 다시 시도해 주세요.');
-                        }
-                    },
-                    onError: (error) => {
-                        console.error("Verification failed:", error);
-                        alert('World ID 인증 실패. 다시 시도해 주세요.');
-                    }
-                });
-                widget.open();
-            });
-
-            postForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const title = document.getElementById('title').value;
-                const content = document.getElementById('content').value;
-
-                try {
-                    await fetch('/create_post', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ title, content, isVerified }),
-                    });
-                    alert('게시글이 성공적으로 작성되었습니다.');
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    console.error("Error adding document: ", error);
-                }
-            });
-        });
-    </script>
 </body>
 </html>
